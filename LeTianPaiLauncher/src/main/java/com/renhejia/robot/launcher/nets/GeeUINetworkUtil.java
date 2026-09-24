@@ -31,7 +31,8 @@ public class GeeUINetworkUtil {
     private Context mContext;
     private Gson gson;
     private static final String AUTHORIZATION = "Authorization";
-    static final String HOST = "https://yourservice.com";
+    /** Emulator address of third_party_demo mock (`go run ./mock`). */
+    static final String HOST = "http://10.0.2.2:8080";
 
     /** Null when the path is still the placeholder or is not a valid URL. */
     static HttpUrl.Builder endpoint(String uri) {

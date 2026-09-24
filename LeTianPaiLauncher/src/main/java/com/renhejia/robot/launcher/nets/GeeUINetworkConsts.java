@@ -1,70 +1,49 @@
 package com.renhejia.robot.launcher.nets;
 
+/**
+ * Paths served by the local mock on http://10.0.2.2:8080.
+ * The original production paths were removed before open source.
+ * Bodies for the todo entries are stubs; see third_party_demo/APIS.md.
+ */
 public class GeeUINetworkConsts {
 
-    /**
-     * 设备绑定信息
-     */
-    public final static String BIND_INFO = "your interface url";
+    /** Device bind status. */
+    public final static String BIND_INFO = "/robot_api/v1/device/bindInfo";
 
-    /**
-     * 日历
-     */
-    public final static String CALENDAR_LIST = "your interface url";
+    /** Calendar events. */
+    public final static String CALENDAR_LIST = "/robot_api/v1/device/calendar";
 
-    /**
-     * 倒计时列表
-     */
-    public final static String COUNTDOWN_LIST = "your interface url";
+    /** Countdown events. */
+    public final static String COUNTDOWN_LIST = "/robot_api/v1/device/countdown";
 
-    /**
-     * 获取用户信息
-     */
-    public final static String FANS_INFO_LIST = "your interface url";
+    /** Fan accounts. */
+    public final static String FANS_INFO_LIST = "/robot_api/v1/device/fans";
 
-    /**
-     * 获取用户信息
-     */
-    public final static String GENERAL_INFO = "your interface url";
+    /** Weather plus calendar count shown on the home screen. */
+    public final static String GENERAL_INFO = "/robot_api/v1/device/general";
 
-    /**
-     * 天气信息
-     */
-    public final static String WEATHER_INFO = "your interface url";
+    /** Weather detail. */
+    public final static String WEATHER_INFO = "/robot_api/v1/device/weather";
 
-    /**
-     * 闹钟列表
-     */
-    public final static String CLOCK_LIST = "your interface url";
+    /** Alarm list. */
+    public final static String CLOCK_LIST = "/robot_api/v1/device/clock";
 
-    /**
-     * 获取机器人全部配置
-     */
-    public final static String GET_ALL_CONFIG = "your interface url";
+    /** Full robot configuration. Stub. */
+    public final static String GET_ALL_CONFIG = "/robot_api/v1/device/allConfig";
 
-    /**
-     * 闹钟列表
-     */
-    public final static String UPLOAD_STATUS = "your interface url";
+    /** Status upload. Stub. */
+    public final static String UPLOAD_STATUS = "/robot_api/v1/device/uploadStatus";
 
-    /**
-     * 获取机器人通用配置
-     */
-    public final static String GET_COMMON_CONFIG = "your interface url";
+    /** Shared robot configuration. Stub. */
+    public final static String GET_COMMON_CONFIG = "/robot_api/v1/device/commonConfig";
 
-    /**
-     * 验签相关
-     */
-    public final static String GET_SN_BY_MAC = "your interface url";
+    /** Serial and hardcode from the MAC. Same path as LtpNetWork. */
+    public final static String GET_SN_BY_MAC = "/robot_api/v1/bind/getSnByMac";
 
-    /**
-     * 获取服务器时间
-     */
-    public final static String GET_SERVER_TIME_STAMP = "your interface url";
+    /** Server clock. */
+    public final static String GET_SERVER_TIME_STAMP = "/robot_api/v1/device/serverTime";
 
-    /**
-     * 机器人获取渠道logo接口
-     */
-    public static final String GET_DEVICE_CHANNELLOGO = "your interface url";
+    /** Channel logos. */
+    public static final String GET_DEVICE_CHANNELLOGO = "/robot_api/v1/device/logo";
 
 }
