@@ -196,7 +196,11 @@ public class SystemFunctionUtil {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (InvocationTargetException e) {
-            e.printStackTrace();
+            if (e.getCause() instanceof SecurityException) {
+                Log.w("SystemFunctionUtil", "wakeUp needs android.permission.DEVICE_POWER");
+            } else {
+                e.printStackTrace();
+            }
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         }

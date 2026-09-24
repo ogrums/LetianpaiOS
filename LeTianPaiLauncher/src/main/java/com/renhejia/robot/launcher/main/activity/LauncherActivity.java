@@ -1,5 +1,6 @@
 package com.renhejia.robot.launcher.main.activity;
 
+import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
@@ -50,9 +51,13 @@ public class LauncherActivity extends LauncherBaseActivity {
     }
 
     private void setTimeFormat() {
-        String timeFormat = android.provider.Settings.System.getString(getContentResolver(), android.provider.Settings.System.TIME_12_24);
-        if (timeFormat == null) {
-            SystemFunctionUtil.set24HourFormat(LauncherActivity.this);
+        try {
+            String timeFormat = android.provider.Settings.System.getString(getContentResolver(), android.provider.Settings.System.TIME_12_24);
+            if (timeFormat == null) {
+                SystemFunctionUtil.set24HourFormat(LauncherActivity.this);
+            }
+        } catch (SecurityException e) {
+            Log.w("LauncherActivity", "24-hour format needs WRITE_SETTINGS");
         }
     }
 
@@ -81,7 +86,12 @@ public class LauncherActivity extends LauncherBaseActivity {
         intent.setComponent(new ComponentName(packageName, activityName));
         intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
         intent.addFlags(FLAG_ACTIVITY_SINGLE_TOP);
-        startActivity(intent);
+        try {
+            startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            Log.w("LauncherActivity", "wifi connect app is not installed, opening the home screen");
+            skipToMainView();
+        }
     }
 
 
