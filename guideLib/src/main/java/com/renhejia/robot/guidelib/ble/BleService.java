@@ -11,7 +11,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.RemoteException;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.Log;
 
 import com.letianpai.robot.letianpaiservice.LtpBleResponseCallback;
@@ -321,7 +321,7 @@ public class BleService extends Service {
 //import android.os.ParcelUuid;
 //import android.os.RemoteException;
 //import android.os.SystemClock;
-//import android.support.annotation.Nullable;
+//import androidx.annotation.Nullable;
 //import android.util.Log;
 //
 //import com.letianpai.robot.letianpaiservice.LtpBleResponseCallback;

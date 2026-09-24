@@ -4,11 +4,11 @@ plugins {
 
 android {
     namespace 'com.renhejia.robot.launcherbaselib'
-    compileSdk 27
+    compileSdk 36
 
     defaultConfig {
-        minSdk 21
-        targetSdk 27
+        minSdk 30
+        targetSdk 36
 //        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
     }
@@ -20,14 +20,14 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 }
 
 dependencies {
 
-    implementation 'com.android.support:appcompat-v7:27.1.1'
-    api "com.google.code.gson:gson:2.8.6"
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    api 'com.google.code.gson:gson:2.11.0'
 //    api project(path: ':RHJClockView')
 }

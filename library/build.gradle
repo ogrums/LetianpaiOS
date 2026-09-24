@@ -5,16 +5,17 @@ plugins {
 //apply plugin: 'com.github.dcendents.android-maven'
 group='com.github.freyskill'
 android {
-    compileSdkVersion 27
+    namespace 'top.keepempty.sph.library'
+    compileSdk 36
 
 
     defaultConfig {
-        minSdkVersion 19
-        targetSdkVersion 27
+        minSdk 30
+        targetSdk 36
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
-//        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+//        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
                 cppFlags ""
@@ -37,16 +38,20 @@ android {
 
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
-    packagingOptions {
-        exclude 'META-INF/DEPENDENCIES'
-        exclude 'META-INF/NOTICE'
-        exclude 'META-INF/NOTICE.txt'
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/LICENSE.txt'
+    packaging {
+        resources {
+            excludes += [
+                    'META-INF/DEPENDENCIES',
+                    'META-INF/NOTICE',
+                    'META-INF/NOTICE.txt',
+                    'META-INF/LICENSE',
+                    'META-INF/LICENSE.txt'
+            ]
+        }
     }
 //    buildToolsVersion '26.0.2'
 }

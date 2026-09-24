@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace 'com.renhejia.robot.launcher'
-    compileSdk 27
+    compileSdk 36
 
     defaultConfig {
         applicationId "com.renhejia.robot.launcher"
-        minSdk 24
-        targetSdk 28
+        minSdk 30
+        targetSdk 36
         versionCode 202405162
         versionName "1.1."+ versionCode
     }
@@ -28,19 +28,22 @@ android {
         debug {
             signingConfig signingConfigs.config
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 
         }
         release {
             signingConfig signingConfigs.config
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = '17'
     }
     lint {
         baseline = file("lint-baseline.xml")
@@ -50,7 +53,11 @@ android {
 
 dependencies {
 
-    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.core:core-ktx:1.15.0'
+    implementation 'androidx.viewpager:viewpager:1.1.0'
+    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
+    implementation 'androidx.annotation:annotation:1.9.1'
     api project(':LeTianPaiLauncherBusinessLib')
     api project(':CommandLib')
     api project(':GestureFactory')
@@ -59,8 +66,8 @@ dependencies {
     api project(':displayview')
     api project(':GeeUINotice')
 
-    implementation 'com.squareup.okhttp3:okhttp:4.10.0'
-    implementation 'com.squareup.okio:okio:1.13.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    implementation 'com.squareup.okio:okio:3.9.1'
 
 
 }
