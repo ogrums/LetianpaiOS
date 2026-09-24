@@ -87,12 +87,6 @@ public class LeTianPaiMainActivity extends Activity {
     private CountDownTimer engineCountDownTimer;
 
     @Override
-    public void onCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
-        super.onCreate(savedInstanceState, persistentState);
-        SystemUtil.setAppLanguage(LeTianPaiMainActivity.this);
-    }
-
-    @Override
     protected void onStart() {
         super.onStart();
         init();
@@ -210,6 +204,7 @@ public class LeTianPaiMainActivity extends Activity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SystemUtil.setAppLanguage(this);
         Intent intent = getIntent();
         if (intent != null) {
             String action = intent.getAction();
