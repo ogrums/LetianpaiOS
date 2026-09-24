@@ -171,12 +171,9 @@ public class GeeUiNetManager {
     public static void get(Context context, boolean isChinese, String auth, String sn, String ts, String uri,
             Callback callback) {
         OkHttpClient okHttpClient = new OkHttpClient();
-        HttpUrl.Builder httpBuilder;
-
-        if (isChinese) {
-            httpBuilder = HttpUrl.parse("https://yourservice.com" + uri).newBuilder();
-        } else {
-            httpBuilder = HttpUrl.parse("https://yourservice.com" + uri).newBuilder();
+        HttpUrl.Builder httpBuilder = GeeUINetworkUtil.endpoint(uri);
+        if (httpBuilder == null) {
+            return;
         }
 
         // httpBuilder.addQueryParameter("sn", "2001013760426");

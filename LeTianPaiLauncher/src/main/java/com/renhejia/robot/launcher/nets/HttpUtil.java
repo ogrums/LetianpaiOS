@@ -56,7 +56,11 @@ public class HttpUtil {
 			throw new RuntimeException("url不能为空");
 		}
  
-		HttpUrl.Builder httpBuilder = HttpUrl.parse(url).newBuilder();
+		HttpUrl parsed = HttpUrl.parse(url);
+		if (parsed == null) {
+			return null;
+		}
+		HttpUrl.Builder httpBuilder = parsed.newBuilder();
  
 		if (params != null) {
 			for (Map.Entry<String, String> param : params.entrySet()) {

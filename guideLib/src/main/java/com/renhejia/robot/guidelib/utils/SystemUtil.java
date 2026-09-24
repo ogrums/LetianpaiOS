@@ -132,6 +132,10 @@ public class SystemUtil {
     public static final String DUMMY_SERIAL = "EMULATOR00000000";
 
     public static String getLtpSn() {
+        // ro.serialno is a system property. Reading it from a normal app is an SELinux denial.
+        if (android.os.Process.myUid() != android.os.Process.SYSTEM_UID) {
+            return DUMMY_SERIAL;
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             try {
                 String serial = Build.getSerial();
