@@ -1,7 +1,7 @@
 package com.renhejia.robot.launcher.remote;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.AttributeSet;
 import com.renhejia.robot.commandlib.log.LogUtils;
 import android.view.View;

@@ -1,6 +1,6 @@
 package com.renhejia.robot.launcher.ota;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.google.gson.annotations.SerializedName;
 
