@@ -40,7 +40,13 @@ JDK 17. See [MIGRATION-ANDROID11.md](MIGRATION-ANDROID11.md).
 ./gradlew :LeTianPaiLauncher:assembleDebug :LetianpaiAudioService:assembleDebug
 ```
 
-Signing uses `keystore/letianpai.jks` only when that file is present. Passwords come from Gradle properties `LETIANPAI_STORE_PASSWORD` and `LETIANPAI_KEY_PASSWORD`, not from the build file. Without the keystore, debug APKs are unsigned.
+Signing uses `keystore/letianpai.jks` only when that file is present. Passwords come from Gradle properties `LETIANPAI_STORE_PASSWORD` and `LETIANPAI_KEY_PASSWORD`, not from the build file. Without that keystore, release APKs are unsigned and debug APKs use the normal Android Studio debug key.
+
+## Emulator
+
+`android:sharedUserId="android.uid.system"` stays on the release manifest. That user id only installs if the APK is signed with the robot platform certificate, which a normal emulator does not have (`INSTALL_FAILED_SHARED_USER_INCOMPATIBLE`).
+
+The debug source set removes `sharedUserId`, so Android Studio Run can install the launcher on an emulator. Debug is not a system app there: privileged permissions are refused, and the companion packages (MCU, sound, EMQX) are absent. The robot image still uses the release build with `sharedUserId`.
 
 ## Tests
 
