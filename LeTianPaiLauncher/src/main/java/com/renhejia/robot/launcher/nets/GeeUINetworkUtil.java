@@ -2,6 +2,7 @@ package com.renhejia.robot.launcher.nets;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.renhejia.robot.guidelib.utils.SystemUtil;
@@ -30,6 +31,17 @@ public class GeeUINetworkUtil {
     private Context mContext;
     private Gson gson;
     private static final String AUTHORIZATION = "Authorization";
+    static final String HOST = "https://yourservice.com";
+
+    /** Null when the path is still the placeholder or is not a valid URL. */
+    static HttpUrl.Builder endpoint(String uri) {
+        HttpUrl url = HttpUrl.parse(HOST + (uri == null ? "" : uri));
+        if (url == null) {
+            Log.w("GeeUINetwork", "skip request, endpoint is not configured: " + uri);
+            return null;
+        }
+        return url.newBuilder();
+    }
 
     private GeeUINetworkUtil(Context context) {
         init(context);
@@ -51,17 +63,22 @@ public class GeeUINetworkUtil {
     }
 
     public static void get(String uri, Callback callback) {
+        HttpUrl.Builder httpBuilder = endpoint(uri);
+        if (httpBuilder == null) {
+            return;
+        }
         OkHttpClient okHttpClient = new OkHttpClient();
-        Request.Builder builder = new Request.Builder();
-        Request request = builder.get().url("https://yourservice.com" + uri).build();
-        Call call = okHttpClient.newCall(request);
-        call.enqueue(callback);
+        Request request = new Request.Builder().get().url(httpBuilder.build()).build();
+        okHttpClient.newCall(request).enqueue(callback);
     }
 
     public static void get1(Context context, String uri, Callback callback) {
         OkHttpClient okHttpClient = new OkHttpClient();
         Request.Builder builder = new Request.Builder();
-        HttpUrl.Builder httpBuilder = HttpUrl.parse("https://yourservice.com" + uri).newBuilder();
+        HttpUrl.Builder httpBuilder = endpoint(uri);
+        if (httpBuilder == null) {
+            return;
+        }
         String sn = SystemUtil.getLtpSn();
         httpBuilder.addQueryParameter("sn", sn);
 
@@ -76,7 +93,10 @@ public class GeeUINetworkUtil {
     public static void get(Context context, String uri, HashMap hashMap, Callback callback) {
         OkHttpClient okHttpClient = new OkHttpClient();
         Request.Builder builder = new Request.Builder();
-        HttpUrl.Builder httpBuilder = HttpUrl.parse("https://yourservice.com" + uri).newBuilder();
+        HttpUrl.Builder httpBuilder = endpoint(uri);
+        if (httpBuilder == null) {
+            return;
+        }
         String sn = SystemUtil.getLtpSn();
 
         //
@@ -123,7 +143,10 @@ public class GeeUINetworkUtil {
     public static void get1(Context context, String sn, String key, String uri, Callback callback) {
         OkHttpClient okHttpClient = new OkHttpClient();
         Request.Builder builder = new Request.Builder();
-        HttpUrl.Builder httpBuilder = HttpUrl.parse("https://yourservice.com" + uri).newBuilder();
+        HttpUrl.Builder httpBuilder = endpoint(uri);
+        if (httpBuilder == null) {
+            return;
+        }
 
         httpBuilder.addQueryParameter("sn", sn);
         httpBuilder.addQueryParameter("sn", sn);
@@ -143,7 +166,12 @@ public class GeeUINetworkUtil {
             client = new OkHttpClient.Builder().connectTimeout(Duration.ofMinutes(10l))
                     .readTimeout(Duration.ofMinutes(10l)).callTimeout(Duration.ofMinutes(10l)).build();
         }
-        String url = "https://yourservice.com" + uri;
+        HttpUrl parsed = HttpUrl.parse(HOST + (uri == null ? "" : uri));
+        if (parsed == null || client == null) {
+            Log.w("GeeUINetwork", "skip request, endpoint is not configured: " + uri);
+            return;
+        }
+        String url = parsed.toString();
         MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
         list.add(hashMap);
         RequestBody body = RequestBody.create(new Gson().toJson(hashMap), mediaType);
@@ -155,7 +183,10 @@ public class GeeUINetworkUtil {
 
     public static void get11(Context context, String auth, String sn, String ts, String uri, Callback callback) {
         OkHttpClient okHttpClient = new OkHttpClient();
-        HttpUrl.Builder httpBuilder = HttpUrl.parse("https://yourservice.com" + uri).newBuilder();
+        HttpUrl.Builder httpBuilder = endpoint(uri);
+        if (httpBuilder == null) {
+            return;
+        }
 
         httpBuilder.addQueryParameter("sn", sn);
         httpBuilder.addQueryParameter("ts", ts);
@@ -171,7 +202,10 @@ public class GeeUINetworkUtil {
 
     public static void get11(Context context, String auth, String ts, String uri, Callback callback) {
         OkHttpClient okHttpClient = new OkHttpClient();
-        HttpUrl.Builder httpBuilder = HttpUrl.parse("https://yourservice.com" + uri).newBuilder();
+        HttpUrl.Builder httpBuilder = endpoint(uri);
+        if (httpBuilder == null) {
+            return;
+        }
         String mac = EncryptionUtils.getRobotMac();
 
         httpBuilder.addQueryParameter("mac", mac);
