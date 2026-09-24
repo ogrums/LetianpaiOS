@@ -15,26 +15,33 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    def keystoreFile = file('../keystore/letianpai.jks')
     signingConfigs {
 
         config {
-            storeFile file('../keystore/letianpai.jks')
-            keyAlias 'letianpai'
-            keyPassword 'letianpai0801'
-            storePassword 'letianpai0801'
+            if (keystoreFile.exists()) {
+                storeFile keystoreFile
+                keyAlias 'letianpai'
+                keyPassword findProperty('LETIANPAI_KEY_PASSWORD') ?: ''
+                storePassword findProperty('LETIANPAI_STORE_PASSWORD') ?: ''
+            }
         }
 
     }
 
     buildTypes {
         debug {
-            signingConfig signingConfigs.config
+            if (keystoreFile.exists()) {
+                signingConfig signingConfigs.config
+            }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 
         }
         release {
-            signingConfig signingConfigs.config
+            if (keystoreFile.exists()) {
+                signingConfig signingConfigs.config
+            }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
@@ -44,6 +51,9 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
+    }
+    buildFeatures {
+        aidl true
     }
 }
 

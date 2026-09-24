@@ -23,12 +23,14 @@ public class PowerMotion {
 
     @Override
     public String toString() {
-        return "{" +
-                "function=" + function +
-                ", status=" + status +
+        return "{\"function\":" + function +
+                ", \"status\":" + status +
                 '}';
     }
-    public PowerMotion(int function,int status){
+    public PowerMotion() {
+    }
+
+    public PowerMotion(int function, int status) {
         this.function = function;
         this.status = status;
     }

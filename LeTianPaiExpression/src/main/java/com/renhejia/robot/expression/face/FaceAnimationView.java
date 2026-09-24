@@ -14,7 +14,7 @@ import android.widget.ImageView;
  * 
  * @author liujunbin
  */
-public class FaceAnimationView extends android.support.v7.widget.AppCompatImageView {
+public class FaceAnimationView extends androidx.appcompat.widget.AppCompatImageView {
 	
 	public interface OnFaceAnimationChangedListener {
         /**
