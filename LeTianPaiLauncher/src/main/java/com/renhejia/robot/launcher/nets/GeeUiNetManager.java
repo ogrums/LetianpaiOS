@@ -166,7 +166,12 @@ public class GeeUiNetManager {
                     Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
-            sn = Build.getSerial();
+            try {
+                sn = Build.getSerial();
+            } catch (SecurityException e) {
+                Log.w("GeeUiNetManager", "serial is only readable by a system app");
+                return;
+            }
         }
 
         String hardCode = SystemUtil.getHardCode();
