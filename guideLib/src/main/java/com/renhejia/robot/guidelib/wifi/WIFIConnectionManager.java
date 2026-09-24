@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
@@ -375,21 +376,25 @@ public class WIFIConnectionManager {
     }
 
     public static boolean isNetworkAvailable(Context context) {
-        ConnectivityManager cm = (ConnectivityManager) context
-                .getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (cm != null) {
-            //如果仅仅是用来判断网络连接
-            Network[] info = cm.getAllNetworks();
-            if (info != null) {
-                for (Network network : info) {
-                    NetworkInfo networkInfo = cm.getNetworkInfo(network);
-                    if (networkInfo.getState() == NetworkInfo.State.CONNECTED) {
-                        return true;
-                    }
-                }
-            }
+        if (context == null) {
+            return false;
         }
-        return false;
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm == null) {
+            return false;
+        }
+        try {
+            Network network = cm.getActiveNetwork();
+            if (network == null) {
+                return false;
+            }
+            NetworkCapabilities capabilities = cm.getNetworkCapabilities(network);
+            return capabilities != null
+                    && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
+        } catch (SecurityException e) {
+            Log.w(TAG, "network state is not readable");
+            return false;
+        }
     }
 
     public void setSetIncorrectPassword(boolean setIncorrectPassword) {

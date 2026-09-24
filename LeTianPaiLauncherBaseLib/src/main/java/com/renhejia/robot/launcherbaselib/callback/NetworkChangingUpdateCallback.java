@@ -1,5 +1,7 @@
 package com.renhejia.robot.launcherbaselib.callback;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 
 /**
@@ -44,9 +46,14 @@ public class NetworkChangingUpdateCallback {
 
     }
 
-    public void setNetworkStatus(int networkType,int networkStatus) {
-        for (int i = 0;i <mNetworkChangeUpdateListenerList.size(); i++){
-            mNetworkChangeUpdateListenerList.get(i).onNetworkChargingUpdateReceived(networkType,networkStatus);
+    public void setNetworkStatus(int networkType, int networkStatus) {
+        currentNetworkType = networkType;
+        for (int i = 0; i < mNetworkChangeUpdateListenerList.size(); i++) {
+            try {
+                mNetworkChangeUpdateListenerList.get(i).onNetworkChargingUpdateReceived(networkType, networkStatus);
+            } catch (RuntimeException e) {
+                Log.w("NetworkChangingUpdate", "listener failed", e);
+            }
         }
     }
 

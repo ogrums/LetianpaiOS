@@ -4,99 +4,108 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import com.renhejia.robot.launcherbaselib.callback.NetworkChangingUpdateCallback;
 import com.renhejia.robot.launcherbaselib.info.LauncherInfoManager;
 
-
 /**
- *
- * @author liujunbin
+ * Wi-Fi and connectivity broadcasts. System calls here can throw on a normal
+ * emulator (no DEVICE_POWER / location), so a failure must not kill the process.
  */
 public class NetWorkChangeReceiver extends BroadcastReceiver {
-    private WifiManager mWifiManager;
-    private ConnectivityManager mConnectivityManager;
-    private NetworkInfo mNetworkinfo;
-    private TelephonyManager mTelePhonyManager;
-
+    private static final String TAG = "NetWorkChangeReceiver";
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        mWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-        mConnectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        mTelePhonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-
-        if (intent.getAction().equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
-            updateNetworkStatus(context, intent);
-        } else if (intent.getAction().equals(WifiManager.RSSI_CHANGED_ACTION)) {
-
-        } else if (intent.getAction().equals(WifiManager.WIFI_STATE_CHANGED_ACTION)) {
-            switch (intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_UNKNOWN)) {
-                case WifiManager.WIFI_STATE_DISABLED:
-                    LauncherInfoManager.getInstance(context).setWifiStates(false);
-                    break;
-
-                case WifiManager.WIFI_STATE_ENABLED:
-                    LauncherInfoManager.getInstance(context).setWifiStates(true);
-                    break;
-            }
-
-        } else if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
-            mConnectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo activeNetworkInfo = mConnectivityManager.getActiveNetworkInfo();
-            if (activeNetworkInfo != null && activeNetworkInfo.isConnected()) {
-                if (ConnectivityManager.TYPE_WIFI == activeNetworkInfo.getType()) {
-                    NetworkChangingUpdateCallback.getInstance().setNetworkStatus(NetworkChangingUpdateCallback.NETWORK_TYPE_WIFI, 3);
-                    //移动网络
-                } else if (ConnectivityManager.TYPE_MOBILE == activeNetworkInfo.getType()) {
-                    NetworkChangingUpdateCallback.getInstance().setNetworkStatus(NetworkChangingUpdateCallback.NETWORK_TYPE_MOBILE, -1);
-
-                } else {
-                    NetworkChangingUpdateCallback.getInstance().setNetworkStatus(NetworkChangingUpdateCallback.NETWORK_TYPE_DISABLED, -1);
-                }
-            } else {
-                NetworkChangingUpdateCallback.getInstance().setNetworkStatus(NetworkChangingUpdateCallback.NETWORK_TYPE_DISABLED, -1);
-            }
+        if (context == null || intent == null) {
+            return;
         }
-
+        String action = intent.getAction();
+        if (action == null) {
+            return;
+        }
+        try {
+            if (WifiManager.NETWORK_STATE_CHANGED_ACTION.equals(action)
+                    || ConnectivityManager.CONNECTIVITY_ACTION.equals(action)) {
+                publish(context);
+            } else if (WifiManager.WIFI_STATE_CHANGED_ACTION.equals(action)) {
+                int state = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_UNKNOWN);
+                if (state == WifiManager.WIFI_STATE_DISABLED) {
+                    LauncherInfoManager.getInstance(context).setWifiStates(false);
+                    NetworkChangingUpdateCallback.getInstance().setNetworkStatus(
+                            NetworkChangingUpdateCallback.NETWORK_TYPE_DISABLED, -1);
+                } else if (state == WifiManager.WIFI_STATE_ENABLED) {
+                    LauncherInfoManager.getInstance(context).setWifiStates(true);
+                }
+            }
+        } catch (RuntimeException e) {
+            Log.w(TAG, "ignored " + action, e);
+        }
     }
 
-    private void updateNetworkStatus(Context context, Intent intent) {
-        mNetworkinfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+    private static void publish(Context context) {
+        int type = networkType(context);
+        int level = type == NetworkChangingUpdateCallback.NETWORK_TYPE_WIFI ? wifiLevel(context) : -1;
+        NetworkChangingUpdateCallback.getInstance().setNetworkStatus(type, level);
+    }
 
-        if (mWifiManager.isWifiEnabled() && isWifiConnected(context)) {
-            WifiInfo wifiInfo = mWifiManager.getConnectionInfo();
-            int level = mWifiManager.calculateSignalLevel(wifiInfo.getRssi(), 3);
-            NetworkChangingUpdateCallback.getInstance().setNetworkStatus(NetworkChangingUpdateCallback.NETWORK_TYPE_WIFI, level);
-        } else {
-            mNetworkinfo = mConnectivityManager.getActiveNetworkInfo();
-            if (null == mNetworkinfo) {
-                NetworkChangingUpdateCallback.getInstance().setNetworkStatus(NetworkChangingUpdateCallback.NETWORK_TYPE_DISABLED, -1);
-            } else if (!mNetworkinfo.isAvailable() || !mNetworkinfo.isConnected()) {
-                NetworkChangingUpdateCallback.getInstance().setNetworkStatus(NetworkChangingUpdateCallback.NETWORK_TYPE_DISABLED, -1);
-            } else if (mNetworkinfo.getType() == ConnectivityManager.TYPE_MOBILE) {
-                // 暂无移动网络需求，没有处理此部分逻辑
-                }
-            }
+    private static int networkType(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm == null) {
+            return NetworkChangingUpdateCallback.NETWORK_TYPE_DISABLED;
         }
+        try {
+            Network network = cm.getActiveNetwork();
+            NetworkCapabilities capabilities = network == null ? null : cm.getNetworkCapabilities(network);
+            if (capabilities == null) {
+                return NetworkChangingUpdateCallback.NETWORK_TYPE_DISABLED;
+            }
+            if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                return NetworkChangingUpdateCallback.NETWORK_TYPE_WIFI;
+            }
+            if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                return NetworkChangingUpdateCallback.NETWORK_TYPE_MOBILE;
+            }
+        } catch (SecurityException e) {
+            Log.w(TAG, "active network is not readable");
+        }
+        return NetworkChangingUpdateCallback.NETWORK_TYPE_DISABLED;
+    }
+
+    private static int wifiLevel(Context context) {
+        WifiManager wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        if (wifiManager == null) {
+            return 0;
+        }
+        try {
+            WifiInfo info = wifiManager.getConnectionInfo();
+            if (info == null) {
+                return 0;
+            }
+            return bars(info.getRssi());
+        } catch (SecurityException e) {
+            Log.w(TAG, "wifi info needs a location or system permission");
+            return 0;
+        }
+    }
+
+    /** Three bars, matching the old calculateSignalLevel(rssi, 3) range. */
+    private static int bars(int rssi) {
+        if (rssi >= -55) {
+            return 2;
+        }
+        if (rssi >= -70) {
+            return 1;
+        }
+        return 0;
+    }
 
     public static boolean isWifiConnected(Context context) {
-        if (context != null) {
-            ConnectivityManager mConnectivityManager = (ConnectivityManager) context
-                    .getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo mWiFiNetworkInfo = mConnectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-            if (mWiFiNetworkInfo != null) {
-                return mWiFiNetworkInfo.isAvailable() && mWiFiNetworkInfo.isConnected();
-            }
-        }
-        return false;
+        return networkType(context) == NetworkChangingUpdateCallback.NETWORK_TYPE_WIFI;
     }
-
 }
-
-
