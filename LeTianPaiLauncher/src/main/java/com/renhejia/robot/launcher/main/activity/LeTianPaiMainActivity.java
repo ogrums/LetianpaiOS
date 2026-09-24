@@ -105,13 +105,16 @@ public class LeTianPaiMainActivity extends Activity {
             } else {
                 startSpeechAudioService();
             }
-//            }
 
             startAppStoreService();
             startMenuService();
         }
 
-        SystemFunctionUtil.setTimeZone(LeTianPaiMainActivity.this);
+        try {
+            SystemFunctionUtil.setTimeZone(LeTianPaiMainActivity.this);
+        } catch (SecurityException e) {
+            Log.w("LeTianPaiMainActivity", "setTimeZone needs SET_TIME_ZONE");
+        }
         startMainCountDownTimer();
         initEngineCountDownTimer();
     }
@@ -120,10 +123,14 @@ public class LeTianPaiMainActivity extends Activity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Intent intent = new Intent();
-                ComponentName cn = new ComponentName("com.letianpai.robot.desktop", "com.letianpai.robot.desktop.service.GeeUIDesktopService");
-                intent.setComponent(cn);
-                startService(intent);
+                try {
+                    Intent intent = new Intent();
+                    ComponentName cn = new ComponentName("com.letianpai.robot.desktop", "com.letianpai.robot.desktop.service.GeeUIDesktopService");
+                    intent.setComponent(cn);
+                    startService(intent);
+                } catch (RuntimeException e) {
+                    Log.w("LeTianPaiMainActivity", "desktop service is not installed");
+                }
             }
         }).start();
     }
@@ -132,10 +139,14 @@ public class LeTianPaiMainActivity extends Activity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Intent intent = new Intent();
-                ComponentName cn = new ComponentName("com.letianpai.robot.appstore", "com.letianpai.robot.appstore.service.AppStoreService");
-                intent.setComponent(cn);
-                startService(intent);
+                try {
+                    Intent intent = new Intent();
+                    ComponentName cn = new ComponentName("com.letianpai.robot.appstore", "com.letianpai.robot.appstore.service.AppStoreService");
+                    intent.setComponent(cn);
+                    startService(intent);
+                } catch (RuntimeException e) {
+                    Log.w("LeTianPaiMainActivity", "app store service is not installed");
+                }
             }
         }).start();
     }
@@ -302,10 +313,14 @@ public class LeTianPaiMainActivity extends Activity {
 
     private void startSpeechAudioService() {
         LogUtils.logd("LeTianPaiMainActivity", "startSpeechAudioService: ");
-        Intent intent = new Intent();
-        ComponentName cn = new ComponentName("com.rhj.speech", "com.rhj.audio.service.LTPAudioService");
-        intent.setComponent(cn);
-        startService(intent);
+        try {
+            Intent intent = new Intent();
+            ComponentName cn = new ComponentName("com.rhj.speech", "com.rhj.audio.service.LTPAudioService");
+            intent.setComponent(cn);
+            startService(intent);
+        } catch (RuntimeException e) {
+            Log.w("LeTianPaiMainActivity", "speech service is not installed");
+        }
     }
 
     private void startDownloadService() {
@@ -322,10 +337,14 @@ public class LeTianPaiMainActivity extends Activity {
 
     private void startAmazonAudioService() {
         LogUtils.logd("LeTianPaiMainActivity", "startAmazonAudioService: ");
-        Intent intent = new Intent();
-        ComponentName cn = new ComponentName("com.geeui.lex", "com.geeui.lex.services.BotService");
-        intent.setComponent(cn);
-        startService(intent);
+        try {
+            Intent intent = new Intent();
+            ComponentName cn = new ComponentName("com.geeui.lex", "com.geeui.lex.services.BotService");
+            intent.setComponent(cn);
+            startService(intent);
+        } catch (RuntimeException e) {
+            Log.w("LeTianPaiMainActivity", "lex service is not installed");
+        }
     }
 
     private void inits() {
