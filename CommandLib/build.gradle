@@ -1,17 +1,14 @@
 plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
 }
+
+apply from: rootProject.file('gradle/android-sdk.gradle')
 
 android {
     namespace 'com.renhejia.robot.commandlib'
-    compileSdk 36
 
     defaultConfig {
-        minSdk 30
-        targetSdk 36
-
-//        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
     }
 
@@ -21,19 +18,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
-    }
-    kotlinOptions {
-        jvmTarget = '17'
-    }
 }
 
 dependencies {
-    api 'androidx.appcompat:appcompat:1.7.0'
-    api 'com.google.code.gson:gson:2.11.0'
-    testImplementation 'junit:junit:4.13.2'
-//    implementation 'androidx.appcompat:appcompat:1.7.0'
-//    implementation 'com.google.android.material:material:1.12.0'
+    api libs.androidx.appcompat
+    api libs.gson
+    testImplementation libs.junit
 }

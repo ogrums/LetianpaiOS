@@ -1,0 +1,22 @@
+// SDK and Java level for every Android module. Versions come from libs.versions.toml.
+def javaVersion = JavaVersion.toVersion(libs.versions.java.get())
+
+android {
+    compileSdk libs.versions.compileSdk.get().toInteger()
+    defaultConfig {
+        minSdk libs.versions.minSdk.get().toInteger()
+        targetSdk libs.versions.targetSdk.get().toInteger()
+    }
+    compileOptions {
+        sourceCompatibility javaVersion
+        targetCompatibility javaVersion
+    }
+}
+
+plugins.withId("org.jetbrains.kotlin.android") {
+    android {
+        kotlinOptions {
+            jvmTarget = libs.versions.java.get()
+        }
+    }
+}

@@ -25,6 +25,12 @@ The MCU package in that list is `com.letianpai.robot.mcuservice`, which is the s
 
 `PowerMotion.toString()` is JSON (`{"function":3, "status":0}`) so Gson can read it. Function 3 is leg/foot servo power. Function 5 is cliff / hang / time-of-flight. GeeUIMcuService turns those into `AT+FunCtr`.
 
+## Dependencies
+
+Versions are declared once in [gradle/libs.versions.toml](gradle/libs.versions.toml). A module writes `implementation libs.gson` or `implementation libs.bundles.okhttp`, never a version number. Plugin ids use `alias(libs.plugins.android.library)`. SDK 36 / minSdk 30 / Java 17 come from [gradle/android-sdk.gradle](gradle/android-sdk.gradle), applied by every Android module.
+
+Glide stays on 3.7.0 and Lottie on 2.6.0 because the source calls those APIs. Jetifier still rewrites those jars. ZXing stays the jar in `guideLib/libs`, not a Maven coordinate.
+
 ## Build
 
 JDK 17. See [MIGRATION-ANDROID11.md](MIGRATION-ANDROID11.md).

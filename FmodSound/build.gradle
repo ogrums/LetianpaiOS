@@ -1,29 +1,16 @@
 plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
 }
+
+apply from: rootProject.file('gradle/android-sdk.gradle')
 
 android {
     namespace 'com.demon.fmodsound'
-    compileSdk 36
-
-    defaultConfig {
-        minSdk 30
-        targetSdk 36
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
-    }
-    kotlinOptions {
-        jvmTarget = '17'
-    }
 
     externalNativeBuild {
         cmake {
             path "CMakeLists.txt"
-//            version "3.10.2"
         }
     }
 }
