@@ -28,6 +28,7 @@ android {
 dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
     api 'com.google.code.gson:gson:2.11.0'
 //    api project(path: ':RHJClockView')
 }
