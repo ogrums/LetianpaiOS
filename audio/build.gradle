@@ -1,21 +1,17 @@
 plugins {
-    id 'com.android.library'
+    alias(libs.plugins.android.library)
 }
+
+apply from: rootProject.file('gradle/android-sdk.gradle')
 
 android {
     namespace 'com.rhj.audio'
-//    compileSdk 36
-    compileSdk 36
 
     defaultConfig {
-        minSdk 30
-//        targetSdk 36
-        targetSdk 36
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
         ndk {
-            abiFilters "arm64-v8a","armeabi-v7a"
+            abiFilters "arm64-v8a", "armeabi-v7a"
         }
     }
 
@@ -25,28 +21,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-//    externalNativeBuild {
-//        cmake {
-//            path "src/main/cpp/CMakeLists.txt"
-//        }
-//    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
-    }
 }
+
 dependencies {
-//    compileOnly files('libs/fmod.jar')
-//    implementation 'androidx.appcompat:appcompat:1.7.0'
-//    implementation 'com.google.android.material:material:1.12.0'
-//    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
-    implementation 'com.google.code.gson:gson:2.11.0'
-
-
+    implementation libs.gson
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
     implementation project(path: ':message')
     api project(path: ':FmodSound')
-
 }
-

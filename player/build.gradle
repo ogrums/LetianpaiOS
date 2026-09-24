@@ -1,15 +1,13 @@
 plugins {
-    id 'com.android.library'
+    alias(libs.plugins.android.library)
 }
+
+apply from: rootProject.file('gradle/android-sdk.gradle')
 
 android {
     namespace 'com.rhj.player'
-    compileSdk 36
 
     defaultConfig {
-        minSdk 30
-        targetSdk 36
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
     }
@@ -20,14 +18,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
-    }
 }
 
 dependencies {
-    implementation 'com.google.code.gson:gson:2.11.0'
+    implementation libs.gson
     implementation project(path: ':message')
-
 }

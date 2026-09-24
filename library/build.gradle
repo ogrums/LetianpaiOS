@@ -1,21 +1,18 @@
-//apply plugin: 'com.android.library'
 plugins {
-    id 'com.android.library'
+    alias(libs.plugins.android.library)
 }
-//apply plugin: 'com.github.dcendents.android-maven'
-group='com.github.freyskill'
+
+apply from: rootProject.file('gradle/android-sdk.gradle')
+
+group = 'com.github.freyskill'
+
 android {
     namespace 'top.keepempty.sph.library'
-    compileSdk 36
-
 
     defaultConfig {
-        minSdk 30
-        targetSdk 36
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
-//        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
                 cppFlags ""
@@ -36,12 +33,6 @@ android {
         }
     }
 
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
-    }
-
     packaging {
         resources {
             excludes += [
@@ -53,7 +44,6 @@ android {
             ]
         }
     }
-//    buildToolsVersion '26.0.2'
 }
 
 dependencies {
