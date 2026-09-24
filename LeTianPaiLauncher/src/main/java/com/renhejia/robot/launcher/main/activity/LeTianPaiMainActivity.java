@@ -2,10 +2,12 @@ package com.renhejia.robot.launcher.main.activity;
 
 import static com.renhejia.robot.commandlib.consts.MCUCommandConsts.COMMAND_SET_SHOW_TIME;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.*;
 import androidx.annotation.Nullable;
 import android.text.TextUtils;
@@ -230,6 +232,7 @@ public class LeTianPaiMainActivity extends Activity {
         int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
         setContentView(R.layout.activity_main_letianpai);
+        requestLocationPermission();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         inits();
 
@@ -243,6 +246,18 @@ public class LeTianPaiMainActivity extends Activity {
     private void getLogo(){
         GeeUINetResponseManager.getInstance(this).getLogoInfo();
     }
+
+    /** BLE scan and Wi-Fi name need location on Android 11. A service cannot show this dialog. */
+    private void requestLocationPermission() {
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        requestPermissions(new String[] {
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+        }, 110);
+    }
+
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
