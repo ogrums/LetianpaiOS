@@ -256,18 +256,24 @@ public class DispatchService extends Service {
     }
 
     private void sendShutdownCmd() {
-        try {
-            iLetianpaiService.setAppCmd(COMMAND_TYPE_SHUTDOWN, COMMAND_TYPE_SHUTDOWN);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        sendAppCmd(COMMAND_TYPE_SHUTDOWN, COMMAND_TYPE_SHUTDOWN);
     }
 
     private void sendShutDownSteeringEngineCmd() {
+        sendAppCmd(COMMAND_TYPE_SHUTDOWN_STEERING_ENGINE, COMMAND_TYPE_SHUTDOWN_STEERING_ENGINE);
+    }
+
+    /** LetianpaiService is another app. On an emulator the bind stays null. */
+    private void sendAppCmd(String command, String data) {
+        ILetianpaiService service = iLetianpaiService;
+        if (service == null) {
+            Log.w(TAG, "LetianpaiService is not connected, skip " + command);
+            return;
+        }
         try {
-            iLetianpaiService.setAppCmd(COMMAND_TYPE_SHUTDOWN_STEERING_ENGINE, COMMAND_TYPE_SHUTDOWN_STEERING_ENGINE);
-        } catch (Exception e) {
-            e.printStackTrace();
+            service.setAppCmd(command, data);
+        } catch (RemoteException e) {
+            Log.w(TAG, "setAppCmd failed: " + command, e);
         }
     }
 
@@ -329,19 +335,11 @@ public class DispatchService extends Service {
     }
 
     private void sendPowerOnCharging() {
-        try {
-            iLetianpaiService.setAppCmd(COMMAND_TYPE_POWER_ON_CHARGING, COMMAND_TYPE_POWER_ON_CHARGING);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        sendAppCmd(COMMAND_TYPE_POWER_ON_CHARGING, COMMAND_TYPE_POWER_ON_CHARGING);
     }
 
     private void closeSteeringEngine() {
-        try {
-            iLetianpaiService.setAppCmd(COMMAND_TYPE_CLOSE_STEERING_ENGINE, COMMAND_TYPE_CLOSE_STEERING_ENGINE);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        sendAppCmd(COMMAND_TYPE_CLOSE_STEERING_ENGINE, COMMAND_TYPE_CLOSE_STEERING_ENGINE);
     }
 
 
@@ -369,14 +367,10 @@ public class DispatchService extends Service {
         CommandResponseCallback.getInstance().setLTPCommandResponseListener(new CommandResponseCallback.LTPCommandResponseListener() {
             @Override
             public void onLTPCommandReceived(String command, String data) {
-                if (command.equals(MCUCommandConsts.COMMAND_SET_APP_MODE)) {
+                if (MCUCommandConsts.COMMAND_SET_APP_MODE.equals(command)) {
                     Log.e("letianpai_test111", "========= 0 ========");
-                    try {
-                        iLetianpaiService.setAppCmd(MCUCommandConsts.COMMAND_SET_APP_MODE, data);
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
-                    }
-                }else if(command.equals(COMMAND_SET_SHOW_TIME)){
+                    sendAppCmd(MCUCommandConsts.COMMAND_SET_APP_MODE, data);
+                }else if(COMMAND_SET_SHOW_TIME.equals(command)){
                     if (LTPGuideConfigManager.getInstance(DispatchService.this).isActivated()){
                         sendPowerOnCharging();
                         //思必驰语音独立出来了，启动放在RobotService即可
@@ -384,6 +378,8 @@ public class DispatchService extends Service {
                             startGeeUIOtaService();
                         }
                     }
+                } else if (iLetianpaiService == null) {
+                    Log.w(TAG, "LetianpaiService is not connected, skip " + command);
                 } else {
                     try {
                         iLetianpaiService.setMcuCommand(command, data);
@@ -465,6 +461,7 @@ public class DispatchService extends Service {
         @Override
         public void onServiceDisconnected(ComponentName name) {
             Log.d(TAG, "乐天派 无法绑定aidlserver的AIDLService服务");
+            iLetianpaiService = null;
             isConnectService = false;
         }
     };
@@ -528,7 +525,11 @@ public class DispatchService extends Service {
         LogUtils.logd("DispatchService", "removeDevice: " + LTPGuideConfigManager.getInstance(DispatchService.this).isActivated());
         // 关闭机器人
         try {
-            iLetianpaiService.setAppCmd(COMMAND_VALUE_KILL_PROCESS, ROBOT_PACKAGE_NAME + PACKAGE_NAME_SPLIT + PACKAGE_NAME_IDENT);
+            if (iLetianpaiService != null) {
+                iLetianpaiService.setAppCmd(COMMAND_VALUE_KILL_PROCESS, ROBOT_PACKAGE_NAME + PACKAGE_NAME_SPLIT + PACKAGE_NAME_IDENT);
+            } else {
+                Log.w(TAG, "LetianpaiService is not connected, skip " + COMMAND_VALUE_KILL_PROCESS);
+            }
         } catch (RemoteException e) {
             e.printStackTrace();
         }

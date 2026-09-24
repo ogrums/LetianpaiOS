@@ -1,10 +1,6 @@
 package com.renhejia.robot.launcher.nets;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
-import android.os.Build;
-import androidx.core.app.ActivityCompat;
 import android.util.Log;
 
 import com.renhejia.robot.guidelib.utils.SystemUtil;
@@ -160,20 +156,7 @@ public class GeeUiNetManager {
             return;
         }
         String ts = EncryptionUtils.getTs();
-        String sn = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            if (ActivityCompat.checkSelfPermission(context,
-                    Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-                return;
-            }
-            try {
-                sn = Build.getSerial();
-            } catch (SecurityException e) {
-                Log.w("GeeUiNetManager", "serial is only readable by a system app");
-                return;
-            }
-        }
-
+        String sn = SystemUtil.getLtpSn();
         String hardCode = SystemUtil.getHardCode();
         String auth = EncryptionUtils.getRobotSign(sn, hardCode, ts);
 

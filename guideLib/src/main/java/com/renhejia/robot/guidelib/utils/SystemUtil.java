@@ -129,14 +129,24 @@ public class SystemUtil {
         return pro;
     }
 
-    public static String getLtpSn(){
-//        return get(SN,null);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            return Build.getSerial();
-        }else{
-            return get(SN,null);
-        }
+    public static final String DUMMY_SERIAL = "EMULATOR00000000";
 
+    public static String getLtpSn() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            try {
+                String serial = Build.getSerial();
+                if (!TextUtils.isEmpty(serial) && !"unknown".equalsIgnoreCase(serial)) {
+                    return serial;
+                }
+            } catch (SecurityException e) {
+                Log.w("SystemUtil", "serial is not readable, using " + DUMMY_SERIAL);
+            }
+        }
+        String stored = get(SN, null);
+        if (!TextUtils.isEmpty(stored)) {
+            return stored;
+        }
+        return DUMMY_SERIAL;
     }
 
     public static String getLtpLastSn(){
