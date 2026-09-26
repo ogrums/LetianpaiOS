@@ -1,11 +1,17 @@
 # Statut RUX / GeeUI — 2026-09-26
 
-## Fait récent
+## Fait
 
-- [GEEUILEX.md](GEEUILEX.md) — APK 86 Mo : AWS Lex/Polly + PocketSphinx + IJK + `robot-api.letianpai.com`
-- [API-URLS.md](API-URLS.md) — hosts + `/robot_api/v1/*` à remplacer
+VISION, AIDL, MCU, JSON-COMMANDS, EMQX-APK, mock HTTP+MQTT.
+[GEEUILEX.md](GEEUILEX.md) · [API-URLS.md](API-URLS.md)
 
-## Suite mocks
+## Mocks / AIDL / MQTT ensuite
 
-Aligner `third_party_demo/mock` sur les chemins **user/** du dex (aujourd’hui le mock est en **device/**).
-Pointer `Constants.kt` (`your-server.com` → LAN).
+1. Pointer `Constants.kt` vers le mock LAN.
+2. Ajouter au mock les chemins `/robot_api/v1/user/*` (dex Lex) en plus de `/device/*`.
+3. MQTT dump `#` sur le robot.
+
+## Todo APK restants (Drive)
+
+Haute : IdentService, LTPOtaService, MiIoT, LTPAudio/Mcu/Service/Launcher.
+GeeUILex : fait (APK, pas de source).
