@@ -2,6 +2,8 @@
 
 Android 11 home screen for the GeeUI robot. Gradle project name: `LeTianPaiRobot`. This repository builds the launcher and the sound-effect app. It does not build the motion MCU or the AIDL bus.
 
+Carte globale des 19 forks RUX / GeeUI, décision multi-repo et backlog : [docs/VISION.md](docs/VISION.md).
+
 ## What Gradle compiles
 
 | Module | Role |
