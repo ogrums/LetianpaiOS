@@ -6,41 +6,25 @@ Méthode : vision → analyse → décision → PR. Pas encore de changement run
 
 | Étape | Livrable |
 |---|---|
-| Carte repos + choix multi-repos | [VISION.md](VISION.md) |
-| Contrats AIDL | [AIDL-CONTRACTS.md](AIDL-CONTRACTS.md) |
-| Vocabulaire MCU / AT / servos | [MCU-VOCAB.md](MCU-VOCAB.md) |
-| Plan mock HTTP+MQTT | [MOCK-STACK.md](MOCK-STACK.md) |
-| Payload MQTT (avant APK) | [MQTT-PAYLOADS.md](MQTT-PAYLOADS.md) |
-| EmqxService absent des forks | [EMQX-SERVICE.md](EMQX-SERVICE.md) |
-| Analyse APK EmqxService | [EMQX-APK.md](EMQX-APK.md) — topics `cmd/L81/<id>/+/+`, JSON `cmd`/`d`/`et` |
-| Mock HTTP | `third_party_demo/mock` :8080 |
-| Mock MQTT | `third_party_demo/mock` Mosquitto compose + `pub.sh` |
+| Carte repos + multi-repos | [VISION.md](VISION.md) |
+| Contrats AIDL locaux | [AIDL-CONTRACTS.md](AIDL-CONTRACTS.md) |
+| Vocabulaire MCU | [MCU-VOCAB.md](MCU-VOCAB.md) |
+| Payloads JSON commandes | [JSON-COMMANDS.md](JSON-COMMANDS.md) |
+| APK EmqxService | [EMQX-APK.md](EMQX-APK.md) |
+| Mock HTTP + MQTT | `third_party_demo/mock` |
 
-## En cours / bloqué robot
+## Drive (copie ROM en cours)
 
-| Étape | État |
-|---|---|
-| Pointer `Constants.kt` vers le mock | pas commencé (besoin IP LAN + rebuild LtpNetWork) |
-| Boot robot + 404 HTTP | attend le pointage |
-| Connexion EmqxService au Mosquitto local | attend pointage + broker up |
-| Dump topics réels `mosquitto_sub '#'` | attend le robot |
+Racine : `device` `frameworks` `hardware` `packages` `prebuilts` `vendor`.
+`packages/apps` **noms** présents : EmqxService, GeeUIFace, GeeUIMessage, GeeUITaskService, LTPAudioService, LTPLauncher2, LTPMcuService, LTPOtaService, LTPService, LTPTestLauncher + apps AOSP.
+Contenu de ces dossiers encore **vide** (upload). HAL Rockchip visible (`rknn_server`, `power_aidl`, `light_aidl`).
 
-## Ensuite (backlog)
+Relancer l’exploration Drive quand EmqxService/LTPService ont des fichiers.
 
-5. Launcher boot (200 ms / 1 s, liste d’apps)
-6. Locomotion `AT+MOVEW` commenté vs `AT+MOTORW`
-7. DispatchService / TaskService (routage)
-8. IA / speech éclaté
-9. Toolchain AGP 8 forks restants
-10. Tests parseurs + mock
-11. `sharedUserId` debug vs release
+## Bloqué robot
 
-## Comment lancer le mock maintenant
+Pointer `Constants.kt`, boot 404, dump MQTT `#`.
 
-```
-git clone git@github.com:ogrums/third_party_demo.git
-cd third_party_demo
-docker compose -f mock/docker-compose.yml up -d
-(cd mock && go run .)
-./mock/pub.sh EMULATOR00000000 controlMotion '{"motion":"forward","number":1}'
-```
+## Ensuite
+
+Launcher boot · locomotion AT · DispatchService · speech · toolchain · tests.
