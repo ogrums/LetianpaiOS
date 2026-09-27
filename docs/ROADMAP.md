@@ -1,6 +1,7 @@
 # Roadmap RUX — suivi des étapes
 
 2026-09-26. Objectif : offline d’abord, cloud en option, voix FR/EN.
+Maj 2026-09-27 : catalogue officiel RobotSDK (boutique) ingéré — docs/ROBOTSDK.md.
 
 ---
 
@@ -8,30 +9,19 @@
 
 Un **topic** n’est pas une URL. C’est le nom du « canal radio » sur le broker.
 
-On en a **déjà deux** extraits de l’APK EmqxService (reverse du binaire) :
+On en a **déjà deux** extraits de l’APK EmqxService :
 
 - le robot **écoute** : `cmd/L81/<numero_serie>/+/+`
 - le robot **répond** : `cmd_resp/L81/<numero_serie>/...`
 
-Pour **voir ceux vraiment utilisés au runtime** (le reverse ne remplace pas ça) :
+Pour **voir ceux vraiment utilisés au runtime** :
 
 1. Lancer Mosquitto sur le PC (`third_party_demo/mock`).
 2. Faire pointer le robot vers ce PC (`Constants.kt` + réponse `getIotTriplet.remote_host`).
 3. Sur le PC : `mosquitto_sub -h 127.0.0.1 -t '#' -v`
-4. Allumer le robot. `#` = « tous les canaux ». Tout ce qui s’affiche est un topic réel.
+4. Allumer le robot. `#` = « tous les canaux ».
 
-Sans robot branché sur le mock, on ne peut pas lister plus que ce que l’APK contient.
-
-### Reverse engineering, en pratique ici
-
-| Niveau | Quoi | Déjà fait |
-|---|---|---|
-| Source forks | lire Java/Kotlin | AIDL, MCU, LtpNetWork |
-| APK fermé | `strings` + dex (androguard) | EmqxService, GeeUILex |
-| Runtime | logcat + MQTT `#` + tcpdump | **à faire sur le robot** |
-| ROM | packages/apps prebuilt | Drive partiel |
-
-On ne « devine » pas un topic : soit il est écrit dans le dex, soit on le voit passer sur le fil.
+MQTT long-connect = **TCP :1883**, pas de certificat. Le TLS ne concerne que le HTTP bootstrap.
 
 ---
 
@@ -58,6 +48,7 @@ flowchart TB
     Face[GeeUIFace]
     Audio[GeeUIAIAudioService]
     Lex[GeeUILex APK AWS]
+    SDK[RobotSDK AAR on-device]
   end
 
   Phone --> EMQXcloud
@@ -67,6 +58,7 @@ flowchart TB
   MockHTTP -.->|même API| Emqx
   Mosq -.->|mêmes topics| Emqx
   Emqx -->|setLongConnectCommand| LtpS
+  SDK -->|RobotService AIDL| LtpS
   LtpS --> Dispatch
   Dispatch --> MCU
   Dispatch --> Face
@@ -75,32 +67,9 @@ flowchart TB
   MCU --> Pieds[Servos + oreilles]
 ```
 
-```mermaid
-sequenceDiagram
-  participant Cloud as Broker MQTT
-  participant Emqx as EmqxService
-  participant AIDL as ILetianpaiService
-  participant D as DispatchService
-  participant M as MCU UART
-  Cloud->>Emqx: topic cmd/L81/SN/cmd/x
-  Note over Emqx: JSON cmd + d + et
-  Emqx->>AIDL: setLongConnectCommand(cmd, d)
-  AIDL->>D: onLongConnectCommand
-  D->>M: AT+MOVEW / MOTORW
-  Emqx->>Cloud: topic cmd_resp/L81/SN … ACK
-```
-
 ---
 
 ## État global
-
-```mermaid
-flowchart LR
-  A[Fait: cartes + docs] --> B[En cours: mock branché au robot]
-  B --> C[Ensuite: locomotion + écran offline]
-  C --> D[Ensuite: voix FR/EN locale]
-  D --> E[Ensuite: cloud optionnel propre]
-```
 
 | Zone | Statut | Livrable |
 |---|---|---|
@@ -108,6 +77,7 @@ flowchart LR
 | AIDL | fait | AIDL-CONTRACTS |
 | Vocab MCU | fait | MCU-VOCAB |
 | JSON commandes | fait | JSON-COMMANDS |
+| RobotSDK officiel + AAR 2.2 | fait | ROBOTSDK, MOTION-CODES |
 | HTTP API liste | fait | API-URLS |
 | MQTT topics APK | fait | MQTT-ENDPOINTS, EMQX-APK |
 | GeeUILex APK | fait | GEEUILEX |
@@ -121,45 +91,17 @@ flowchart LR
 
 ---
 
-## Par module — fait / à approfondir
-
-### LetianpaiService + GeeUITaskService
-Intéressant : `DispatchService` (routage string → MCU/face/audio). Offline = ce bus doit marcher **sans** MQTT (commandes locales / ADB).
-
-### GeeUIMcuService + MCU
-Intéressant : `AT+MOVEW` / `MOTORW` / oreilles, servos 1–6. Test ADB → AIDL → UART. Beaucoup de code commenté (`McuCommandControlManager`).
-
-### EmqxService (fermé)
-Déjà reverse. Reste : dump runtime `#`, suffixe exact `cmd_resp`, TLS ou pas sur le LAN.
-
-### LtpNetWork
-Hosts encore `your-server.com`. **Prochaine action** : baseUrl → IP du mock. C’est le robinet cloud.
-
-### GeeUILex + GeeUIAIAudioService
-Lex = AWS + Sphinx EN. Cible : STT/TTS **FR+EN on-device** (Piper / Vosk / Whisper.cpp) branchés sur `setTTS` / `setSpeechCmd`. Couper AWS.
-
-### GeeUIFace / Desktop / Time / Setting
-UI locale. Peuvent tourner offline si on mock `user/weatherInfo` etc. ou si on cache.
-
-### IdentService / MiIoT / OTA (APK seulement)
-P2. Ident = visage. MiIoT = Chine. OTA = garder un canal fichier local, pas le cloud LTP.
-
-### Widgets CN (News, Stock, Fans, …)
-Basse priorité. On peut les laisser morts (404 mock) ou les retirer de la ROM.
-
----
-
 ## Prochaines actions concrètes (ordre)
 
 1. Pointer `LtpNetWork` `Constants.kt` vers le mock LAN + triplet MQTT `remote_host` = PC.
-2. Boot robot, noter les HTTP 404, les ajouter au mock (`user/*` en plus de `device/*`).
-3. `mosquitto_sub -t '#' -v` → coller la liste des topics réels dans MQTT-ENDPOINTS.
-4. `pub.sh controlMotion` → vérifier les pieds.
-5. Commande AIDL locale sans MQTT (preuve offline motion).
+2. Boot robot, noter les HTTP 404, les ajouter au mock.
+3. `mosquitto_sub -t '#' -v` → MQTT-ENDPOINTS.
+4. `pub.sh controlMotion` (number 98 ou 63) → pieds.
+5. Commande AIDL locale / RobotSDK sans MQTT.
 6. Prototype TTS FR (Piper) à la place de Polly.
 
 ---
 
 ## Docs déjà écrits
 
-VISION · STATUS · AIDL-CONTRACTS · MCU-VOCAB · JSON-COMMANDS · API-URLS · MQTT-PAYLOADS · MQTT-ENDPOINTS · EMQX-APK · GEEUILEX · MOCK-STACK
+VISION · STATUS · AIDL-CONTRACTS · MCU-VOCAB · JSON-COMMANDS · ROBOTSDK · MOTION-CODES · API-URLS · MQTT-PAYLOADS · MQTT-ENDPOINTS · EMQX-APK · GEEUILEX · MOCK-STACK
